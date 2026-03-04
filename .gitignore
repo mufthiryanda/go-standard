@@ -60,9 +60,6 @@ credentials/
 # GO TOOLS — GENERATED FILES
 # =============================================================================
 
-# Wire (google/wire) — always regenerated via `make wire`
-internal/di/wire_gen.go
-
 # Swagger — regenerated via `make swagger`
 docs/swagger/
 
