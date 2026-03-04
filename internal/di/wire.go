@@ -5,10 +5,12 @@ package di
 
 import (
 	"go-standard/internal/config"
+	"go-standard/internal/handler"
 	"go-standard/internal/infrastructure"
 	"go-standard/internal/pkg/jwt"
 
 	elasticsearch "github.com/elastic/go-elasticsearch/v8"
+	govalidator "github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/wire"
 	"github.com/redis/go-redis/v9"
@@ -17,7 +19,6 @@ import (
 )
 
 // App holds all wired dependencies needed to start the server.
-// Phase 5+ will add RepoSet, UsecaseSet, HandlerSet fields.
 type App struct {
 	Config         *config.Config
 	DB             *gorm.DB
@@ -33,6 +34,8 @@ type App struct {
 	DefaultLimiter DefaultRateLimiter
 	AuthLimiter    AuthRateLimiter
 	AuthMW         AuthMiddleware
+	Validator      *govalidator.Validate
+	UserHandler    *handler.UserHandler
 }
 
 // InfraSet wires all infrastructure dependencies.
@@ -61,6 +64,10 @@ func InitializeApp(cfg *config.Config) (*App, func(), error) {
 	wire.Build(
 		InfraSet,
 		MiddlewareSet,
+		ValidatorSet,
+		RepoSet,
+		UsecaseSet,
+		HandlerSet,
 		wire.Struct(new(App), "*"),
 	)
 	return nil, nil, nil

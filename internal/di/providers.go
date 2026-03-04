@@ -2,12 +2,19 @@ package di
 
 import (
 	"go-standard/internal/config"
+	"go-standard/internal/handler"
 	"go-standard/internal/middleware"
 	"go-standard/internal/pkg/jwt"
+	"go-standard/internal/repository"
+	"go-standard/internal/usecase"
 
+	elasticsearch "github.com/elastic/go-elasticsearch/v8"
+	govalidator "github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/wire"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 // Named middleware types allow Wire to distinguish multiple fiber.Handler
@@ -73,3 +80,43 @@ func ProvideAuthRateLimiter(rdb *redis.Client, cfg *config.Config) AuthRateLimit
 func ProvideAuthMiddleware(jwtMgr *jwt.Manager) AuthMiddleware {
 	return AuthMiddleware(middleware.NewAuth(jwtMgr))
 }
+
+// ProvideValidator constructs a shared go-playground/validator instance with
+// custom domain rules registered.
+func ProvideValidator() *govalidator.Validate {
+	return govalidator.New()
+}
+
+// ProvideUserRepository constructs a UserRepository backed by GORM.
+func ProvideUserRepository(db *gorm.DB, logger *zap.Logger) repository.UserRepository {
+	return repository.NewUserRepository(db, logger)
+}
+
+// ProvideUserUsecase constructs a UserUsecase with all required dependencies.
+func ProvideUserUsecase(
+	db *gorm.DB,
+	userRepo repository.UserRepository,
+	rdb *redis.Client,
+	es *elasticsearch.Client,
+	jwtMgr *jwt.Manager,
+	logger *zap.Logger,
+) usecase.UserUsecase {
+	return usecase.NewUserUsecase(db, userRepo, rdb, es, jwtMgr, logger)
+}
+
+// ProvideUserHandler constructs a UserHandler with the shared validator.
+func ProvideUserHandler(uc usecase.UserUsecase, v *govalidator.Validate) *handler.UserHandler {
+	return handler.NewUserHandler(uc, v)
+}
+
+// ValidatorSet provides the shared validator instance.
+var ValidatorSet = wire.NewSet(ProvideValidator)
+
+// RepoSet provides all repository implementations.
+var RepoSet = wire.NewSet(ProvideUserRepository)
+
+// UsecaseSet provides all usecase implementations.
+var UsecaseSet = wire.NewSet(ProvideUserUsecase)
+
+// HandlerSet provides all HTTP handler instances.
+var HandlerSet = wire.NewSet(ProvideUserHandler)

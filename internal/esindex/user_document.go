@@ -28,7 +28,7 @@ func UserDocumentFromModel(u *model.User) UserDocument {
 		Email:     u.Email,
 		Name:      u.Name,
 		Role:      u.Role,
-		Phone:     u.Phone,
+		Phone:     *u.Phone,
 		CreatedAt: u.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		UpdatedAt: u.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	}

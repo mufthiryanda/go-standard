@@ -8,10 +8,12 @@ package di
 
 import (
 	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/wire"
 	"github.com/redis/go-redis/v9"
 	"go-standard/internal/config"
+	"go-standard/internal/handler"
 	"go-standard/internal/infrastructure"
 	"go-standard/internal/pkg/jwt"
 	"go.uber.org/zap"
@@ -60,6 +62,10 @@ func InitializeApp(cfg *config.Config) (*App, func(), error) {
 	defaultRateLimiter := ProvideDefaultRateLimiter(client, cfg)
 	authRateLimiter := ProvideAuthRateLimiter(client, cfg)
 	authMiddleware := ProvideAuthMiddleware(manager)
+	validate := ProvideValidator()
+	userRepository := ProvideUserRepository(db, logger)
+	userUsecase := ProvideUserUsecase(db, userRepository, client, elasticsearchClient, manager, logger)
+	userHandler := ProvideUserHandler(userUsecase, validate)
 	app := &App{
 		Config:         cfg,
 		DB:             db,
@@ -75,6 +81,8 @@ func InitializeApp(cfg *config.Config) (*App, func(), error) {
 		DefaultLimiter: defaultRateLimiter,
 		AuthLimiter:    authRateLimiter,
 		AuthMW:         authMiddleware,
+		Validator:      validate,
+		UserHandler:    userHandler,
 	}
 	return app, func() {
 		cleanup4()
@@ -87,7 +95,6 @@ func InitializeApp(cfg *config.Config) (*App, func(), error) {
 // wire.go:
 
 // App holds all wired dependencies needed to start the server.
-// Phase 5+ will add RepoSet, UsecaseSet, HandlerSet fields.
 type App struct {
 	Config         *config.Config
 	DB             *gorm.DB
@@ -103,6 +110,8 @@ type App struct {
 	DefaultLimiter DefaultRateLimiter
 	AuthLimiter    AuthRateLimiter
 	AuthMW         AuthMiddleware
+	Validator      *validator.Validate
+	UserHandler    *handler.UserHandler
 }
 
 // InfraSet wires all infrastructure dependencies.
