@@ -8,7 +8,8 @@ import (
 // Middleware order follows Standard #12: Recover → RequestID → Logger → CORS → RateLimiter → Auth.
 func SetupRoutes(
 	app *fiber.App,
-	h *UserHandler,
+	userHandler *UserHandler,
+	authHandler *AuthHandler,
 	authMW fiber.Handler,
 	defaultLimiter fiber.Handler,
 	authLimiter fiber.Handler,
@@ -43,7 +44,8 @@ func SetupRoutes(
 	api.Use(defaultLimiter)
 
 	// Entity route registrations.
-	registerUserRoutes(api, h, authMW)
+	registerAuthRoutes(api, authHandler, authLimiter)
+	registerUserRoutes(api, userHandler, authMW)
 }
 
 // livenessHandler returns 200 when the process is alive.

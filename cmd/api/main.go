@@ -20,7 +20,6 @@ func main() {
 	// ── Config ──────────────────────────────────────────────────────────────
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		// zap not yet available; use stderr before structured logging is ready.
 		_, _ = fmt.Fprintf(os.Stderr, "failed to load config: %v\n", err)
 		os.Exit(1)
 	}
@@ -56,6 +55,7 @@ func main() {
 	handler.SetupRoutes(
 		fiberApp,
 		app.UserHandler,
+		app.AuthHandler,
 		fiber.Handler(app.AuthMW),
 		fiber.Handler(app.DefaultLimiter),
 		fiber.Handler(app.AuthLimiter),
@@ -70,7 +70,6 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
-	// Start server in a goroutine so the main goroutine can listen for signals.
 	serverErr := make(chan error, 1)
 	go func() {
 		addr := fmt.Sprintf(":%d", cfg.App.Port)

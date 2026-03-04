@@ -1,3 +1,4 @@
+// internal/di/providers.go
 package di
 
 import (
@@ -41,6 +42,8 @@ type AuthRateLimiter fiber.Handler
 // AuthMiddleware wraps the JWT-auth fiber.Handler.
 type AuthMiddleware fiber.Handler
 
+// ── Middleware Providers ─────────────────────────────────────────────────────
+
 // ProvideErrorHandler constructs the fiber.ErrorHandler used in fiber.Config.
 func ProvideErrorHandler() fiber.ErrorHandler {
 	return middleware.NewErrorHandler()
@@ -81,16 +84,22 @@ func ProvideAuthMiddleware(jwtMgr *jwt.Manager) AuthMiddleware {
 	return AuthMiddleware(middleware.NewAuth(jwtMgr))
 }
 
+// ── Validator Provider ───────────────────────────────────────────────────────
+
 // ProvideValidator constructs a shared go-playground/validator instance with
 // custom domain rules registered.
 func ProvideValidator() *govalidator.Validate {
 	return govalidator.New()
 }
 
+// ── Repository Providers ─────────────────────────────────────────────────────
+
 // ProvideUserRepository constructs a UserRepository backed by GORM.
 func ProvideUserRepository(db *gorm.DB, logger *zap.Logger) repository.UserRepository {
 	return repository.NewUserRepository(db, logger)
 }
+
+// ── Usecase Providers ────────────────────────────────────────────────────────
 
 // ProvideUserUsecase constructs a UserUsecase with all required dependencies.
 func ProvideUserUsecase(
@@ -104,10 +113,31 @@ func ProvideUserUsecase(
 	return usecase.NewUserUsecase(db, userRepo, rdb, es, jwtMgr, logger)
 }
 
+// ProvideAuthUsecase constructs an AuthUsecase with all required dependencies.
+func ProvideAuthUsecase(
+	db *gorm.DB,
+	userRepo repository.UserRepository,
+	rdb *redis.Client,
+	es *elasticsearch.Client,
+	jwtMgr *jwt.Manager,
+	logger *zap.Logger,
+) usecase.AuthUsecase {
+	return usecase.NewAuthUsecase(db, userRepo, rdb, es, jwtMgr, logger)
+}
+
+// ── Handler Providers ────────────────────────────────────────────────────────
+
 // ProvideUserHandler constructs a UserHandler with the shared validator.
 func ProvideUserHandler(uc usecase.UserUsecase, v *govalidator.Validate) *handler.UserHandler {
 	return handler.NewUserHandler(uc, v)
 }
+
+// ProvideAuthHandler constructs an AuthHandler with the shared validator.
+func ProvideAuthHandler(uc usecase.AuthUsecase, v *govalidator.Validate) *handler.AuthHandler {
+	return handler.NewAuthHandler(uc, v)
+}
+
+// ── Provider Sets ────────────────────────────────────────────────────────────
 
 // ValidatorSet provides the shared validator instance.
 var ValidatorSet = wire.NewSet(ProvideValidator)
@@ -116,7 +146,7 @@ var ValidatorSet = wire.NewSet(ProvideValidator)
 var RepoSet = wire.NewSet(ProvideUserRepository)
 
 // UsecaseSet provides all usecase implementations.
-var UsecaseSet = wire.NewSet(ProvideUserUsecase)
+var UsecaseSet = wire.NewSet(ProvideUserUsecase, ProvideAuthUsecase)
 
 // HandlerSet provides all HTTP handler instances.
-var HandlerSet = wire.NewSet(ProvideUserHandler)
+var HandlerSet = wire.NewSet(ProvideUserHandler, ProvideAuthHandler)

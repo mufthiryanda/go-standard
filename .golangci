@@ -1,0 +1,51 @@
+# .golangci.yml
+# Google-aligned linter configuration for go-standard.
+
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+
+linters:
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - unused
+    - gosimple
+    - ineffassign
+    - misspell
+    - goimports
+    - revive
+    - gocritic
+    - exhaustive
+  disable:
+    - gocyclo
+    - funlen
+
+linters-settings:
+  goimports:
+    local-prefixes: go-standard
+  revive:
+    rules:
+      - name: exported
+        severity: warning
+      - name: unexported-return
+        severity: warning
+  exhaustive:
+    default-signifies-exhaustive: true
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - style
+      - performance
+
+issues:
+  exclude-files:
+    - "wire_gen\\.go$"
+    - "mock_.*\\.go$"
+    - "docs/swagger/.*"
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - errcheck
+        - gocritic

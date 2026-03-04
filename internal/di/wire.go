@@ -36,6 +36,7 @@ type App struct {
 	AuthMW         AuthMiddleware
 	Validator      *govalidator.Validate
 	UserHandler    *handler.UserHandler
+	AuthHandler    *handler.AuthHandler
 }
 
 // InfraSet wires all infrastructure dependencies.

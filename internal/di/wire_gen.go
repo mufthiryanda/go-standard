@@ -66,6 +66,8 @@ func InitializeApp(cfg *config.Config) (*App, func(), error) {
 	userRepository := ProvideUserRepository(db, logger)
 	userUsecase := ProvideUserUsecase(db, userRepository, client, elasticsearchClient, manager, logger)
 	userHandler := ProvideUserHandler(userUsecase, validate)
+	authUsecase := ProvideAuthUsecase(db, userRepository, client, elasticsearchClient, manager, logger)
+	authHandler := ProvideAuthHandler(authUsecase, validate)
 	app := &App{
 		Config:         cfg,
 		DB:             db,
@@ -83,6 +85,7 @@ func InitializeApp(cfg *config.Config) (*App, func(), error) {
 		AuthMW:         authMiddleware,
 		Validator:      validate,
 		UserHandler:    userHandler,
+		AuthHandler:    authHandler,
 	}
 	return app, func() {
 		cleanup4()
@@ -112,6 +115,7 @@ type App struct {
 	AuthMW         AuthMiddleware
 	Validator      *validator.Validate
 	UserHandler    *handler.UserHandler
+	AuthHandler    *handler.AuthHandler
 }
 
 // InfraSet wires all infrastructure dependencies.

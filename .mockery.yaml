@@ -1,0 +1,16 @@
+# .mockery.yaml
+# vektra/mockery/v2 configuration for go-standard.
+
+with-expecter: true
+dir: mocks
+outpkg: mocks
+filename: "mock_{{.InterfaceName | snakecase}}.go"
+mockname: "Mock{{.InterfaceName}}"
+
+packages:
+  go-standard/internal/repository:
+    interfaces:
+      UserRepository:
+  go-standard/internal/usecase:
+    interfaces:
+      UserUsecase:
