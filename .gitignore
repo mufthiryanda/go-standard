@@ -1,0 +1,280 @@
+# =============================================================================
+# GO — github.com/mufthiryanda/go-standard
+# =============================================================================
+
+# Compiled binaries & plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Built binary (project-specific)
+/bin/
+/build/
+/dist/
+/tmp/
+
+# Test artifacts
+*.test
+*.out
+*.coverprofile
+profile.cov
+coverage.*
+
+# Go workspace (Go 1.18+)
+go.work
+go.work.sum
+
+# Dependency vendor dir (uncomment if you decide to vendor)
+vendor/
+
+# =============================================================================
+# SECRETS & CONFIG — 100% SAFE, NOTHING LEAKS
+# =============================================================================
+
+# All .env files (every variant)
+.env
+.env.*
+!.env.example
+
+# All config YAML files with real values (keep only the example/template)
+config.local.yaml
+config.dev.yaml
+config.staging.yaml
+config.prod.yaml
+!config.*.example.yaml
+
+# Any stray credential or secret files
+*.pem
+*.key
+*.p12
+*.pfx
+*.cert
+*.crt
+*.cer
+secrets/
+credentials/
+
+# =============================================================================
+# GO TOOLS — GENERATED FILES
+# =============================================================================
+
+# Wire (google/wire) — always regenerated via `make wire`
+internal/di/wire_gen.go
+
+# Swagger — regenerated via `make swagger`
+docs/swagger/
+
+# Mockery — regenerated via `make mocks`
+mocks/
+
+# Air (live reload) temp dir
+tmp/
+
+# =============================================================================
+# OS — macOS
+# =============================================================================
+
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+.LSOverride
+.AppleDB
+.AppleDesktop
+Icon?
+Network Trash Folder
+Temporary Items
+
+# =============================================================================
+# OS — Windows
+# =============================================================================
+
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# =============================================================================
+# OS — Linux
+# =============================================================================
+
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# =============================================================================
+# IDE — JetBrains (GoLand, IntelliJ, WebStorm, etc.)
+# =============================================================================
+
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.idea_modules/
+
+# =============================================================================
+# IDE — VS Code
+# =============================================================================
+
+.vscode/
+*.code-workspace
+.history/
+
+# =============================================================================
+# IDE — Vim / Neovim
+# =============================================================================
+
+*.swp
+*.swo
+*~
+.netrwhist
+Session.vim
+.vim/
+
+# =============================================================================
+# IDE — Emacs
+# =============================================================================
+
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+.org-id-locations
+
+# =============================================================================
+# IDE — Sublime Text
+# =============================================================================
+
+*.sublime-workspace
+*.sublime-project
+
+# =============================================================================
+# IDE — Cursor / Windsurf / Zed (AI editors)
+# =============================================================================
+
+.cursor/
+.cursorignore
+.windsurf/
+.zed/
+
+# =============================================================================
+# STORAGE, MEDIA & UPLOADS — NEVER COMMIT BINARY ASSETS
+# =============================================================================
+
+# Images
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.ico
+*.svg
+*.bmp
+*.tiff
+*.webp
+*.avif
+*.heic
+*.heif
+*.raw
+
+# Video
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.wmv
+*.flv
+*.webm
+*.m4v
+*.mpeg
+
+# Audio
+*.mp3
+*.wav
+*.flac
+*.aac
+*.ogg
+*.m4a
+
+# Documents / binary files
+*.pdf
+*.doc
+*.docx
+*.xls
+*.xlsx
+*.ppt
+*.pptx
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.gz
+*.bz2
+
+# Fonts
+*.ttf
+*.otf
+*.woff
+*.woff2
+*.eot
+
+# Storage directories
+storage/
+uploads/
+media/
+assets/
+static/files/
+public/uploads/
+
+# =============================================================================
+# LOGS & RUNTIME
+# =============================================================================
+
+*.log
+logs/
+*.pid
+*.seed
+*.pid.lock
+
+# =============================================================================
+# DOCKER — local override files only
+# =============================================================================
+
+docker-compose.override.yml
+.docker/
+
+# =============================================================================
+# MISC TOOLS
+# =============================================================================
+
+# golangci-lint cache
+.golangci-lint-cache/
+
+# Delve debugger
+__debug_bin*
+
+# Profiling outputs
+*.prof
+*.trace
+
+# Terraform (if ever used alongside)
+.terraform/
+*.tfstate
+*.tfstate.backup
