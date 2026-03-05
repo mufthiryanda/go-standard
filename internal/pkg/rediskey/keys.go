@@ -20,3 +20,8 @@ func UserSession(userID uuid.UUID) string {
 func AuthRefresh(userID uuid.UUID) string {
 	return fmt.Sprintf("auth:refresh:%s", userID.String())
 }
+
+// SnapBIAccessToken returns the Redis key for the SNAP BI B2B access token.
+func SnapBIAccessToken() string {
+	return "snapbi:access_token"
+}

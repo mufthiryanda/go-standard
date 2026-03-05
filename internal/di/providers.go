@@ -4,10 +4,13 @@ package di
 import (
 	"go-standard/internal/config"
 	"go-standard/internal/handler"
+	"go-standard/internal/integration/snapbi"
 	"go-standard/internal/middleware"
+	"go-standard/internal/pkg/httpclient"
 	"go-standard/internal/pkg/jwt"
 	"go-standard/internal/repository"
 	"go-standard/internal/usecase"
+	"time"
 
 	elasticsearch "github.com/elastic/go-elasticsearch/v8"
 	govalidator "github.com/go-playground/validator/v10"
@@ -84,6 +87,36 @@ func ProvideAuthMiddleware(jwtMgr *jwt.Manager) AuthMiddleware {
 	return AuthMiddleware(middleware.NewAuth(jwtMgr))
 }
 
+// ProvideBaseHTTPClient provides a production-ready HTTP client with retry and circuit breaker.
+func ProvideBaseHTTPClient(logger *zap.Logger) httpclient.Client {
+	return httpclient.NewBaseClient(logger,
+		httpclient.WithTimeout(30*time.Second),
+		httpclient.WithRetry(httpclient.RetryConfig{
+			MaxAttempts:   3,
+			InitialWait:   200 * time.Millisecond,
+			MaxWait:       2 * time.Second,
+			Multiplier:    2.0,
+			RetryOnStatus: []int{429, 502, 503, 504},
+		}),
+		httpclient.WithCircuitBreaker(httpclient.CircuitBreakerConfig{
+			Name:            "default",
+			MaxFailures:     5,
+			ResetTimeout:    30 * time.Second,
+			HalfOpenMaxReqs: 1,
+		}),
+	)
+}
+
+// ProvideSnapBIClient provides the SNAP BI integration client via Wire.
+func ProvideSnapBIClient(
+	base httpclient.Client,
+	cfg *config.Config,
+	rdb *redis.Client,
+	logger *zap.Logger,
+) (snapbi.SnapBIClient, func(), error) {
+	return snapbi.NewSnapBIClient(base, cfg.Integrations.SnapBI, rdb, logger)
+}
+
 // ── Validator Provider ───────────────────────────────────────────────────────
 
 // ProvideValidator constructs a shared go-playground/validator instance with
@@ -136,6 +169,11 @@ func ProvideUserHandler(uc usecase.UserUsecase, v *govalidator.Validate) *handle
 func ProvideAuthHandler(uc usecase.AuthUsecase, v *govalidator.Validate) *handler.AuthHandler {
 	return handler.NewAuthHandler(uc, v)
 }
+
+var IntegrationSet = wire.NewSet(
+	ProvideBaseHTTPClient,
+	ProvideSnapBIClient,
+)
 
 // ── Provider Sets ────────────────────────────────────────────────────────────
 

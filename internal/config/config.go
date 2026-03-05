@@ -10,13 +10,14 @@ import (
 
 // Config is the root configuration struct loaded at boot.
 type Config struct {
-	App           App           `mapstructure:"app"`
-	DB            DB            `mapstructure:"db"`
-	Redis         Redis         `mapstructure:"redis"`
-	Elasticsearch Elasticsearch `mapstructure:"elasticsearch"`
-	JWT           JWT           `mapstructure:"jwt"`
-	RateLimit     RateLimit     `mapstructure:"rate_limit"`
-	Log           Log           `mapstructure:"log"`
+	App           App                `mapstructure:"app"`
+	DB            DB                 `mapstructure:"db"`
+	Redis         Redis              `mapstructure:"redis"`
+	Elasticsearch Elasticsearch      `mapstructure:"elasticsearch"`
+	JWT           JWT                `mapstructure:"jwt"`
+	RateLimit     RateLimit          `mapstructure:"rate_limit"`
+	Log           Log                `mapstructure:"log"`
+	Integrations  IntegrationsConfig `mapstructure:"integrations"`
 }
 
 // App holds general application settings.
@@ -81,6 +82,24 @@ type RateLimit struct {
 type Log struct {
 	Level  string `mapstructure:"level"`
 	Format string `mapstructure:"format"`
+}
+
+// IntegrationsConfig holds all third-party integration configurations.
+type IntegrationsConfig struct {
+	SnapBI SnapBI `mapstructure:"snap_bi"`
+}
+
+// SnapBI holds configuration for the SNAP BI (Bank Nasional Indonesia) integration.
+type SnapBI struct {
+	BaseURL        string `mapstructure:"base_url"`
+	ClientKey      string `mapstructure:"client_key"`
+	PartnerID      string `mapstructure:"partner_id"`
+	ChannelID      string `mapstructure:"channel_id"`
+	PrivateKeyPath string `mapstructure:"private_key_path"`
+	// ClientSecret is env-only — never store in YAML.
+	// Env var: APP_INTEGRATIONS_SNAP_BI_CLIENT_SECRET
+	ClientSecret   string `mapstructure:"-"`
+	AccessTokenTTL int    `mapstructure:"access_token_ttl"` // seconds, default 840
 }
 
 // replacer maps APP_DB_HOST → db.host for Viper env binding.
