@@ -8,6 +8,7 @@ import (
 	"go-standard/internal/middleware"
 	"go-standard/internal/pkg/httpclient"
 	"go-standard/internal/pkg/jwt"
+	"go-standard/internal/pkg/storage"
 	"go-standard/internal/repository"
 	"go-standard/internal/usecase"
 	"time"
@@ -117,6 +118,11 @@ func ProvideSnapBIClient(
 	return snapbi.NewSnapBIClient(base, cfg.Integrations.SnapBI, rdb, logger)
 }
 
+// ProvideStorageManager initialises all storage providers and returns the manager.
+func ProvideStorageManager(cfg *config.Config, logger *zap.Logger) (storage.StorageManager, func(), error) {
+	return storage.NewStorageManager(cfg.Storage, logger)
+}
+
 // ── Validator Provider ───────────────────────────────────────────────────────
 
 // ProvideValidator constructs a shared go-playground/validator instance with
@@ -188,3 +194,6 @@ var UsecaseSet = wire.NewSet(ProvideUserUsecase, ProvideAuthUsecase)
 
 // HandlerSet provides all HTTP handler instances.
 var HandlerSet = wire.NewSet(ProvideUserHandler, ProvideAuthHandler)
+
+// StorageSet is the Wire provider set for object storage.
+var StorageSet = wire.NewSet(ProvideStorageManager)

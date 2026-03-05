@@ -18,6 +18,7 @@ type Config struct {
 	RateLimit     RateLimit          `mapstructure:"rate_limit"`
 	Log           Log                `mapstructure:"log"`
 	Integrations  IntegrationsConfig `mapstructure:"integrations"`
+	Storage       StorageConfig      `mapstructure:"storage"`
 }
 
 // App holds general application settings.
@@ -100,6 +101,49 @@ type SnapBI struct {
 	// Env var: APP_INTEGRATIONS_SNAP_BI_CLIENT_SECRET
 	ClientSecret   string `mapstructure:"-"`
 	AccessTokenTTL int    `mapstructure:"access_token_ttl"` // seconds, default 840
+}
+
+// StorageConfig holds all object storage configuration.
+type StorageConfig struct {
+	ActiveProvider    string           `mapstructure:"active_provider"` // "s3" | "minio" | "do_spaces"
+	DefaultBucket     string           `mapstructure:"default_bucket"`
+	PublicBaseURL     string           `mapstructure:"public_base_url"`     // CDN base, e.g. https://cdn.example.com
+	PresignedGetTTL   int              `mapstructure:"presigned_get_ttl"`   // seconds, default: 3600 (1h)
+	PresignedPutTTL   int              `mapstructure:"presigned_put_ttl"`   // seconds, default: 900 (15min)
+	MaxFileSizeBytes  int64            `mapstructure:"max_file_size_bytes"` // default: 10485760 (10MB)
+	AllowedMIMETypes  []string         `mapstructure:"allowed_mime_types"`
+	AllowedExtensions []string         `mapstructure:"allowed_extensions"` // include dot: [".jpg", ".pdf"]
+	Providers         StorageProviders `mapstructure:"providers"`
+}
+
+// StorageProviders holds per-provider configuration.
+type StorageProviders struct {
+	S3       S3Config       `mapstructure:"s3"`
+	MinIO    MinIOConfig    `mapstructure:"minio"`
+	DOSpaces DOSpacesConfig `mapstructure:"do_spaces"`
+}
+
+// S3Config configures AWS S3.
+type S3Config struct {
+	Region          string `mapstructure:"region"`
+	AccessKeyID     string `mapstructure:"-"` // env: APP_STORAGE_PROVIDERS_S3_ACCESS_KEY_ID
+	SecretAccessKey string `mapstructure:"-"` // env: APP_STORAGE_PROVIDERS_S3_SECRET_ACCESS_KEY
+}
+
+// MinIOConfig configures a self-hosted MinIO instance.
+type MinIOConfig struct {
+	Endpoint        string `mapstructure:"endpoint"` // e.g. "http://localhost:9000"
+	UseSSL          bool   `mapstructure:"use_ssl"`
+	AccessKeyID     string `mapstructure:"-"` // env: APP_STORAGE_PROVIDERS_MINIO_ACCESS_KEY_ID
+	SecretAccessKey string `mapstructure:"-"` // env: APP_STORAGE_PROVIDERS_MINIO_SECRET_ACCESS_KEY
+}
+
+// DOSpacesConfig configures DigitalOcean Spaces.
+// Endpoint is auto-derived: https://{region}.digitaloceanspaces.com
+type DOSpacesConfig struct {
+	Region          string `mapstructure:"region"` // e.g. "sgp1", "nyc3"
+	AccessKeyID     string `mapstructure:"-"`      // env: APP_STORAGE_PROVIDERS_DO_SPACES_ACCESS_KEY_ID
+	SecretAccessKey string `mapstructure:"-"`      // env: APP_STORAGE_PROVIDERS_DO_SPACES_SECRET_ACCESS_KEY
 }
 
 // replacer maps APP_DB_HOST → db.host for Viper env binding.
