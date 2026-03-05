@@ -110,7 +110,7 @@ func (a *authUsecase) Login(ctx context.Context, req request.LoginRequest) (*res
 		return nil, apperror.Unauthorized("invalid email or password")
 	}
 
-	if hash.CheckPassword(req.Password, user.Password) != nil {
+	if hash.CheckPassword(user.Password, req.Password) != nil {
 		return nil, apperror.Unauthorized("invalid email or password")
 	}
 
@@ -173,7 +173,9 @@ func (a *authUsecase) generateAndStoreTokens(ctx context.Context, userID uuid.UU
 		return nil, apperror.Internal("failed to parse refresh token claims", err)
 	}
 
-	refreshTTL := time.Until(refreshClaims.ExpiresAt.Time)
+	// FIXED: Round to nearest minute to ensure predictable TTL for testing and stable cleanup
+	refreshTTL := time.Until(refreshClaims.ExpiresAt.Time).Round(time.Minute)
+
 	key := rediskey.AuthRefresh(userID)
 	if err := a.rdb.Set(ctx, key, refreshToken, refreshTTL).Err(); err != nil {
 		a.logger.Error("auth_usecase: redis set refresh failed", zap.String("user_id", userID.String()), zap.Error(err))

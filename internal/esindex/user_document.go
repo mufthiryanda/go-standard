@@ -28,11 +28,16 @@ func UserDocumentFromModel(u *model.User) UserDocument {
 		Email:     u.Email,
 		Name:      u.Name,
 		Role:      u.Role,
-		Phone:     *u.Phone,
 		CreatedAt: u.CreatedAt.Format("2006-01-02T15:04:05Z07:00"),
 		UpdatedAt: u.UpdatedAt.Format("2006-01-02T15:04:05Z07:00"),
 	}
 
+	// Safely handle the Phone pointer
+	if u.Phone != nil {
+		doc.Phone = *u.Phone
+	}
+
+	// Safely handle the DeletedAt pointer
 	if u.DeletedAt != nil {
 		s := u.DeletedAt.Format("2006-01-02T15:04:05Z07:00")
 		doc.DeletedAt = &s
