@@ -24,11 +24,13 @@ import (
 	"go-standard/internal/handler"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 )
 
 func main() {
 	// ── Config ──────────────────────────────────────────────────────────────
+	_ = godotenv.Load()
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "failed to load config: %v\n", err)

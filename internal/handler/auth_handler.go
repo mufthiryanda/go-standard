@@ -32,7 +32,7 @@ func NewAuthHandler(uc usecase.AuthUsecase, v *govalidator.Validate) *AuthHandle
 //	@Failure		409		{object}	response.Response{error=response.ErrorBody}			"Email already registered"
 //	@Failure		429		{object}	response.Response{error=response.ErrorBody}			"Rate limit exceeded"
 //	@Failure		500		{object}	response.Response{error=response.ErrorBody}			"Internal server error"
-//	@Router			/api/v1/auth/register [post]
+//	@Router			/auth/register [post]
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	var req request.RegisterRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -61,7 +61,7 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 //	@Failure		401		{object}	response.Response{error=response.ErrorBody}			"Invalid credentials"
 //	@Failure		429		{object}	response.Response{error=response.ErrorBody}			"Rate limit exceeded"
 //	@Failure		500		{object}	response.Response{error=response.ErrorBody}			"Internal server error"
-//	@Router			/api/v1/auth/login [post]
+//	@Router			/auth/login [post]
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	var req request.LoginRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -90,7 +90,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 //	@Failure		401		{object}	response.Response{error=response.ErrorBody}			"Invalid or expired refresh token"
 //	@Failure		429		{object}	response.Response{error=response.ErrorBody}			"Rate limit exceeded"
 //	@Failure		500		{object}	response.Response{error=response.ErrorBody}			"Internal server error"
-//	@Router			/api/v1/auth/refresh [post]
+//	@Router			/auth/refresh [post]
 func (h *AuthHandler) Refresh(c *fiber.Ctx) error {
 	var req request.RefreshRequest
 	if err := c.BodyParser(&req); err != nil {

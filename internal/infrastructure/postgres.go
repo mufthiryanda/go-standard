@@ -2,6 +2,7 @@ package infrastructure
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"go-standard/internal/apperror"
@@ -18,6 +19,8 @@ import (
 // underlying *sql.DB. Satisfies the Wire (T, func(), error) cleanup pattern.
 func NewPostgresDB(cfg *config.Config) (*gorm.DB, func(), error) {
 	dsn := buildDSN(cfg.DB)
+
+	log.Println("DB Password -> ", cfg.DB.Password)
 
 	gormCfg := &gorm.Config{
 		// Silence GORM's own logger; structured request logging happens in middleware.

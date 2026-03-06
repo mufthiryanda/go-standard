@@ -1,7 +1,10 @@
 package handler
 
 import (
+	_ "go-standard/docs/swagger"
+
 	"github.com/gofiber/fiber/v2"
+	fiberswagger "github.com/gofiber/swagger"
 )
 
 // SetupRoutes configures global middleware, the versioned API group, and health endpoints.
@@ -38,6 +41,9 @@ func SetupRoutes(
 	// Health probes — outside /api/v1 versioning, no rate limiter.
 	app.Get("/healthz", livenessHandler)
 	app.Get("/readyz", readinessHandler)
+
+	// Swagger
+	app.Get("/docs/swagger/*", fiberswagger.HandlerDefault)
 
 	// Versioned API group — default rate limiter applied to the entire group.
 	api := app.Group("/api/v1")

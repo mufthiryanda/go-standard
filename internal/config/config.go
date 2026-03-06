@@ -8,7 +8,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config is the root configuration struct loaded at boot.
 type Config struct {
 	App           App                `mapstructure:"app"`
 	DB            DB                 `mapstructure:"db"`
@@ -22,7 +21,6 @@ type Config struct {
 	Worker        WorkerConfig       `mapstructure:"worker"`
 }
 
-// App holds general application settings.
 type App struct {
 	Name     string `mapstructure:"name"`
 	Port     int    `mapstructure:"port"`
@@ -30,7 +28,6 @@ type App struct {
 	Timezone string `mapstructure:"timezone"`
 }
 
-// DB holds PostgreSQL connection settings.
 type DB struct {
 	Host            string `mapstructure:"host"`
 	Port            int    `mapstructure:"port"`
@@ -43,7 +40,6 @@ type DB struct {
 	ConnMaxLifetime string `mapstructure:"conn_max_lifetime"`
 }
 
-// Redis holds Redis connection settings.
 type Redis struct {
 	Host        string `mapstructure:"host"`
 	Port        int    `mapstructure:"port"`
@@ -53,14 +49,12 @@ type Redis struct {
 	MinIdleConn int    `mapstructure:"min_idle_conns"`
 }
 
-// Elasticsearch holds ES client settings.
 type Elasticsearch struct {
 	Addresses []string `mapstructure:"addresses"`
 	Username  string   `mapstructure:"username"`
 	Password  string   `mapstructure:"password"`
 }
 
-// JWT holds token signing settings.
 type JWT struct {
 	Secret     string `mapstructure:"secret"`
 	AccessTTL  string `mapstructure:"access_ttl"`
@@ -68,105 +62,84 @@ type JWT struct {
 	Issuer     string `mapstructure:"issuer"`
 }
 
-// RateLimitPolicy holds max requests and window for a single policy.
 type RateLimitPolicy struct {
 	Max    int    `mapstructure:"max"`
 	Window string `mapstructure:"window"`
 }
 
-// RateLimit groups rate limit policies.
 type RateLimit struct {
 	Default RateLimitPolicy `mapstructure:"default"`
 	Auth    RateLimitPolicy `mapstructure:"auth"`
 }
 
-// Log holds logging settings.
 type Log struct {
 	Level  string `mapstructure:"level"`
 	Format string `mapstructure:"format"`
 }
 
-// IntegrationsConfig holds all third-party integration configurations.
 type IntegrationsConfig struct {
 	SnapBI SnapBI `mapstructure:"snap_bi"`
 }
 
-// SnapBI holds configuration for the SNAP BI (Bank Nasional Indonesia) integration.
 type SnapBI struct {
 	BaseURL        string `mapstructure:"base_url"`
 	ClientKey      string `mapstructure:"client_key"`
 	PartnerID      string `mapstructure:"partner_id"`
 	ChannelID      string `mapstructure:"channel_id"`
 	PrivateKeyPath string `mapstructure:"private_key_path"`
-	// ClientSecret is env-only — never store in YAML.
-	// Env var: APP_INTEGRATIONS_SNAP_BI_CLIENT_SECRET
 	ClientSecret   string `mapstructure:"-"`
-	AccessTokenTTL int    `mapstructure:"access_token_ttl"` // seconds, default 840
+	AccessTokenTTL int    `mapstructure:"access_token_ttl"`
 }
 
-// StorageConfig holds all object storage configuration.
 type StorageConfig struct {
-	ActiveProvider    string           `mapstructure:"active_provider"` // "s3" | "minio" | "do_spaces"
+	ActiveProvider    string           `mapstructure:"active_provider"`
 	DefaultBucket     string           `mapstructure:"default_bucket"`
-	PublicBaseURL     string           `mapstructure:"public_base_url"`     // CDN base, e.g. https://cdn.example.com
-	PresignedGetTTL   int              `mapstructure:"presigned_get_ttl"`   // seconds, default: 3600 (1h)
-	PresignedPutTTL   int              `mapstructure:"presigned_put_ttl"`   // seconds, default: 900 (15min)
-	MaxFileSizeBytes  int64            `mapstructure:"max_file_size_bytes"` // default: 10485760 (10MB)
+	PublicBaseURL     string           `mapstructure:"public_base_url"`
+	PresignedGetTTL   int              `mapstructure:"presigned_get_ttl"`
+	PresignedPutTTL   int              `mapstructure:"presigned_put_ttl"`
+	MaxFileSizeBytes  int64            `mapstructure:"max_file_size_bytes"`
 	AllowedMIMETypes  []string         `mapstructure:"allowed_mime_types"`
-	AllowedExtensions []string         `mapstructure:"allowed_extensions"` // include dot: [".jpg", ".pdf"]
+	AllowedExtensions []string         `mapstructure:"allowed_extensions"`
 	Providers         StorageProviders `mapstructure:"providers"`
 }
 
-// StorageProviders holds per-provider configuration.
 type StorageProviders struct {
 	S3       S3Config       `mapstructure:"s3"`
 	MinIO    MinIOConfig    `mapstructure:"minio"`
 	DOSpaces DOSpacesConfig `mapstructure:"do_spaces"`
 }
 
-// S3Config configures AWS S3.
 type S3Config struct {
 	Region          string `mapstructure:"region"`
-	AccessKeyID     string `mapstructure:"-"` // env: APP_STORAGE_PROVIDERS_S3_ACCESS_KEY_ID
-	SecretAccessKey string `mapstructure:"-"` // env: APP_STORAGE_PROVIDERS_S3_SECRET_ACCESS_KEY
+	AccessKeyID     string `mapstructure:"-"`
+	SecretAccessKey string `mapstructure:"-"`
 }
 
-// MinIOConfig configures a self-hosted MinIO instance.
 type MinIOConfig struct {
-	Endpoint        string `mapstructure:"endpoint"` // e.g. "http://localhost:9000"
+	Endpoint        string `mapstructure:"endpoint"`
 	UseSSL          bool   `mapstructure:"use_ssl"`
-	AccessKeyID     string `mapstructure:"-"` // env: APP_STORAGE_PROVIDERS_MINIO_ACCESS_KEY_ID
-	SecretAccessKey string `mapstructure:"-"` // env: APP_STORAGE_PROVIDERS_MINIO_SECRET_ACCESS_KEY
+	AccessKeyID     string `mapstructure:"-"`
+	SecretAccessKey string `mapstructure:"-"`
 }
 
-// DOSpacesConfig configures DigitalOcean Spaces.
-// Endpoint is auto-derived: https://{region}.digitaloceanspaces.com
 type DOSpacesConfig struct {
-	Region          string `mapstructure:"region"` // e.g. "sgp1", "nyc3"
-	AccessKeyID     string `mapstructure:"-"`      // env: APP_STORAGE_PROVIDERS_DO_SPACES_ACCESS_KEY_ID
-	SecretAccessKey string `mapstructure:"-"`      // env: APP_STORAGE_PROVIDERS_DO_SPACES_SECRET_ACCESS_KEY
+	Region          string `mapstructure:"region"`
+	AccessKeyID     string `mapstructure:"-"`
+	SecretAccessKey string `mapstructure:"-"`
 }
 
-// WorkerConfig holds configuration for the asynq worker binary.
 type WorkerConfig struct {
-	Concurrency   int          `mapstructure:"concurrency"` // default: 10
+	Concurrency   int          `mapstructure:"concurrency"`
 	Queues        WorkerQueues `mapstructure:"queues"`
-	RetentionDays int          `mapstructure:"retention_days"` // archived task retention, default: 7
+	RetentionDays int          `mapstructure:"retention_days"`
 }
 
-// WorkerQueues maps logical domain names to their asynq queue names.
 type WorkerQueues struct {
-	User         string `mapstructure:"user"`         // default: "user"
-	Payment      string `mapstructure:"payment"`      // default: "payment"
-	Notification string `mapstructure:"notification"` // default: "notification"
+	User         string `mapstructure:"user"`
+	Payment      string `mapstructure:"payment"`
+	Notification string `mapstructure:"notification"`
 }
 
-// replacer maps APP_DB_HOST → db.host for Viper env binding.
-func replacer() *strings.Replacer {
-	return strings.NewReplacer(".", "_")
-}
-
-// LoadConfig reads config.{APP_ENV}.yaml and merges APP_* env vars.
 func LoadConfig() (*Config, error) {
 	env := os.Getenv("APP_ENV")
 	if env == "" {
@@ -179,8 +152,15 @@ func LoadConfig() (*Config, error) {
 	v.AddConfigPath(".")
 
 	v.SetEnvPrefix("APP")
-	v.SetEnvKeyReplacer(replacer())
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()
+
+	// Explicit binding ensures Unmarshal picks up env vars for secret keys.
+	_ = v.BindEnv("db.password", "APP_DB_PASSWORD")
+	_ = v.BindEnv("redis.password", "APP_REDIS_PASSWORD")
+	_ = v.BindEnv("jwt.secret", "APP_JWT_SECRET")
+	_ = v.BindEnv("elasticsearch.username", "APP_ES_USERNAME")
+	_ = v.BindEnv("elasticsearch.password", "APP_ES_PASSWORD")
 
 	if err := v.ReadInConfig(); err != nil {
 		return nil, fmt.Errorf("config: read failed: %w", err)
@@ -190,6 +170,15 @@ func LoadConfig() (*Config, error) {
 	if err := v.Unmarshal(&cfg); err != nil {
 		return nil, fmt.Errorf("config: unmarshal failed: %w", err)
 	}
+
+	// mapstructure:"-" fields must be loaded manually via os.Getenv.
+	cfg.Integrations.SnapBI.ClientSecret = os.Getenv("APP_INTEGRATIONS_SNAP_BI_CLIENT_SECRET")
+	cfg.Storage.Providers.MinIO.AccessKeyID = os.Getenv("APP_STORAGE_PROVIDERS_MINIO_ACCESS_KEY_ID")
+	cfg.Storage.Providers.MinIO.SecretAccessKey = os.Getenv("APP_STORAGE_PROVIDERS_MINIO_SECRET_ACCESS_KEY")
+	cfg.Storage.Providers.S3.AccessKeyID = os.Getenv("APP_STORAGE_PROVIDERS_S3_ACCESS_KEY_ID")
+	cfg.Storage.Providers.S3.SecretAccessKey = os.Getenv("APP_STORAGE_PROVIDERS_S3_SECRET_ACCESS_KEY")
+	cfg.Storage.Providers.DOSpaces.AccessKeyID = os.Getenv("APP_STORAGE_PROVIDERS_DO_SPACES_ACCESS_KEY_ID")
+	cfg.Storage.Providers.DOSpaces.SecretAccessKey = os.Getenv("APP_STORAGE_PROVIDERS_DO_SPACES_SECRET_ACCESS_KEY")
 
 	return &cfg, nil
 }

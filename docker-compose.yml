@@ -10,7 +10,7 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${APP_DB_PASSWORD}
       POSTGRES_DB: project_db
     volumes:
       - pg_data:/var/lib/postgresql/data
@@ -26,10 +26,12 @@ services:
     container_name: go-standard-redis
     ports:
       - "6379:6379"
+    command: >
+      redis-server --requirepass ${APP_REDIS_PASSWORD}
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${APP_REDIS_PASSWORD}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -53,7 +55,27 @@ services:
       retries: 5
     restart: unless-stopped
 
+  minio:
+    image: minio/minio:latest
+    container_name: go-standard-minio
+    ports:
+      - "9000:9000"   # S3-compatible API
+      - "9001:9001"   # Web console → http://localhost:9001
+    environment:
+      MINIO_ROOT_USER: ${APP_STORAGE_PROVIDERS_MINIO_ACCESS_KEY_ID}
+      MINIO_ROOT_PASSWORD: ${APP_STORAGE_PROVIDERS_MINIO_SECRET_ACCESS_KEY}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
 volumes:
   pg_data:
   redis_data:
   es_data:
+  minio_data:

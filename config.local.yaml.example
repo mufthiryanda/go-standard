@@ -1,0 +1,99 @@
+app:
+  name: "project"
+  port: 3000
+  env: "local"
+  timezone: "Asia/Jakarta"
+
+db:
+  host: "localhost"
+  port: 5432
+  name: "project_db"
+  user: "postgres"
+  # password: APP_DB_PASSWORD
+  ssl_mode: "disable"
+  max_open_conns: 25
+  max_idle_conns: 10
+  conn_max_lifetime: "5m"
+
+redis:
+  host: "localhost"
+  port: 6379
+  # password: APP_REDIS_PASSWORD
+  db: 0
+  pool_size: 10
+  min_idle_conns: 5
+
+elasticsearch:
+  addresses:
+    - "http://localhost:9200"
+  # username: APP_ES_USERNAME
+  # password: APP_ES_PASSWORD
+
+jwt:
+  # secret: APP_JWT_SECRET
+  access_ttl: "15m"
+  refresh_ttl: "168h"
+  issuer: "project"
+
+rate_limit:
+  default:
+    max: 100
+    window: "1m"
+  auth:
+    max: 10
+    window: "1m"
+
+log:
+  level: "debug"
+  format: "json"
+
+integrations:
+  snap_bi:
+    base_url: "https://api.sandbox.example.com"
+    client_key: "your-client-key"
+    partner_id: "your-partner-id"
+    channel_id: "your-channel-id"
+    private_key_path: "./certs/snap_bi_private.pem"
+    # client_secret: APP_INTEGRATIONS_SNAP_BI_CLIENT_SECRET
+    access_token_ttl: 840
+
+storage:
+  active_provider: "minio"       # "s3" | "minio" | "do_spaces"
+  default_bucket: "project-local"
+  public_base_url: "http://localhost:9000/project-local"
+  presigned_get_ttl: 3600        # 1h
+  presigned_put_ttl: 900         # 15min
+  max_file_size_bytes: 10485760  # 10MB
+  allowed_mime_types:
+    - "image/jpeg"
+    - "image/png"
+    - "image/webp"
+    - "application/pdf"
+  allowed_extensions:
+    - ".jpg"
+    - ".jpeg"
+    - ".png"
+    - ".webp"
+    - ".pdf"
+  providers:
+    s3:
+      region: "ap-southeast-1"
+      # access_key_id:     APP_STORAGE_PROVIDERS_S3_ACCESS_KEY_ID
+      # secret_access_key: APP_STORAGE_PROVIDERS_S3_SECRET_ACCESS_KEY
+    minio:
+      endpoint: "http://localhost:9000"
+      use_ssl: false
+      # access_key_id:     APP_STORAGE_PROVIDERS_MINIO_ACCESS_KEY_ID
+      # secret_access_key: APP_STORAGE_PROVIDERS_MINIO_SECRET_ACCESS_KEY
+    do_spaces:
+      region: "sgp1"
+      # access_key_id:     APP_STORAGE_PROVIDERS_DO_SPACES_ACCESS_KEY_ID
+      # secret_access_key: APP_STORAGE_PROVIDERS_DO_SPACES_SECRET_ACCESS_KEY
+
+worker:
+  concurrency: 10
+  queues:
+    user: "user"
+    payment: "payment"
+    notification: "notification"
+  retention_days: 7

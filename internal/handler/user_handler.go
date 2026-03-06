@@ -35,7 +35,7 @@ func NewUserHandler(uc usecase.UserUsecase, v *govalidator.Validate) *UserHandle
 //	@Failure		409		{object}	response.Response{error=response.ErrorBody}			"Email already exists"
 //	@Failure		500		{object}	response.Response{error=response.ErrorBody}			"Internal server error"
 //	@Security		BearerAuth
-//	@Router			/api/v1/users [post]
+//	@Router			/users [post]
 func (h *UserHandler) Create(c *fiber.Ctx) error {
 	var req request.CreateUserRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -63,7 +63,7 @@ func (h *UserHandler) Create(c *fiber.Ctx) error {
 //	@Failure		400	{object}	response.Response{error=response.ErrorBody}		"Invalid UUID"
 //	@Failure		404	{object}	response.Response{error=response.ErrorBody}		"User not found"
 //	@Failure		500	{object}	response.Response{error=response.ErrorBody}		"Internal server error"
-//	@Router			/api/v1/users/{id} [get]
+//	@Router			/users/{id} [get]
 func (h *UserHandler) GetByID(c *fiber.Ctx) error {
 	id, err := httputil.ParseUUIDParam(c, "id")
 	if err != nil {
@@ -95,7 +95,7 @@ func (h *UserHandler) GetByID(c *fiber.Ctx) error {
 //	@Success		200	{object}	response.Response{data=[]response.UserResponse,meta=response.Meta}	"OK"
 //	@Failure		400	{object}	response.Response{error=response.ErrorBody}							"Bad request"
 //	@Failure		500	{object}	response.Response{error=response.ErrorBody}							"Internal server error"
-//	@Router			/api/v1/users [get]
+//	@Router			/users [get]
 func (h *UserHandler) List(c *fiber.Ctx) error {
 	var f request.UserFilter
 	if err := c.QueryParser(&f); err != nil {
@@ -123,7 +123,7 @@ func (h *UserHandler) List(c *fiber.Ctx) error {
 //	@Failure		404		{object}	response.Response{error=response.ErrorBody}		"User not found"
 //	@Failure		500		{object}	response.Response{error=response.ErrorBody}		"Internal server error"
 //	@Security		BearerAuth
-//	@Router			/api/v1/users/{id} [put]
+//	@Router			/users/{id} [put]
 func (h *UserHandler) Update(c *fiber.Ctx) error {
 	id, err := httputil.ParseUUIDParam(c, "id")
 	if err != nil {
@@ -158,7 +158,7 @@ func (h *UserHandler) Update(c *fiber.Ctx) error {
 //	@Failure		404	{object}	response.Response{error=response.ErrorBody}	"User not found"
 //	@Failure		500	{object}	response.Response{error=response.ErrorBody}	"Internal server error"
 //	@Security		BearerAuth
-//	@Router			/api/v1/users/{id} [delete]
+//	@Router			/users/{id} [delete]
 func (h *UserHandler) Delete(c *fiber.Ctx) error {
 	id, err := httputil.ParseUUIDParam(c, "id")
 	if err != nil {

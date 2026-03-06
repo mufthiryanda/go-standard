@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"bytes"
 	"time"
 
 	"go-standard/internal/domain/ctxkey"
@@ -10,17 +11,20 @@ import (
 	"go.uber.org/zap"
 )
 
-// NewLogger returns a Fiber middleware that logs each request with structured
-// fields. Log level is chosen by HTTP status: info (2xx/3xx), warn (4xx),
-// error (5xx).
 func NewLogger(logger *zap.Logger) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		start := time.Now()
+
+		// Capture request body before Next() consumes it
+		reqBody := string(c.Body())
 
 		err := c.Next()
 
 		status := c.Response().StatusCode()
 		latencyMs := time.Since(start).Milliseconds()
+
+		// Capture response body
+		resBody := string(bytes.TrimSpace(c.Response().Body()))
 
 		fields := []zap.Field{
 			zap.String("request_id", requestIDFromLocals(c)),
@@ -29,6 +33,8 @@ func NewLogger(logger *zap.Logger) fiber.Handler {
 			zap.Int("status", status),
 			zap.Int64("latency_ms", latencyMs),
 			zap.String("ip", c.IP()),
+			zap.String("request_body", reqBody),
+			zap.String("response_body", resBody),
 		}
 
 		if uid, ok := c.Locals(ctxkey.UserID).(uuid.UUID); ok {

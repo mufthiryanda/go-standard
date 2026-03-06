@@ -63,6 +63,7 @@ func buildZapConfig(env, format string, level zap.AtomicLevel) zap.Config {
 	}
 
 	zapCfg.Level = level
+	zapCfg.DisableStacktrace = true
 
 	encoding := format
 	if encoding == "" {
