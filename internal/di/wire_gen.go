@@ -16,6 +16,10 @@ import (
 	"go-standard/internal/handler"
 	"go-standard/internal/infrastructure"
 	"go-standard/internal/pkg/jwt"
+	"go-standard/internal/task/email"
+	"go-standard/internal/task/notification"
+	"go-standard/internal/task/payment"
+	"go-standard/internal/worker"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -89,6 +93,35 @@ func InitializeApp(cfg *config.Config) (*App, func(), error) {
 	}
 	return app, func() {
 		cleanup4()
+		cleanup3()
+		cleanup2()
+		cleanup()
+	}, nil
+}
+
+// InitializeWorker builds the worker binary's dependency graph.
+// Shares InfraSet with the API binary — no duplication of infra wiring.
+func InitializeWorker(cfg *config.Config) (*worker.Server, func(), error) {
+	client, cleanup, err := infrastructure.NewRedisClient(cfg)
+	if err != nil {
+		return nil, nil, err
+	}
+	logger, cleanup2, err := infrastructure.NewLogger(cfg)
+	if err != nil {
+		cleanup()
+		return nil, nil, err
+	}
+	emailHandler := email.NewEmailHandler(logger)
+	paymentHandler := payment.NewPaymentHandler(logger)
+	notificationHandler := notification.NewNotificationHandler(logger)
+	serveMux := worker.NewServeMux(logger, emailHandler, paymentHandler, notificationHandler)
+	server, cleanup3, err := worker.NewServer(cfg, client, serveMux, logger)
+	if err != nil {
+		cleanup2()
+		cleanup()
+		return nil, nil, err
+	}
+	return server, func() {
 		cleanup3()
 		cleanup2()
 		cleanup()

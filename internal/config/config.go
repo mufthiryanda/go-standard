@@ -19,6 +19,7 @@ type Config struct {
 	Log           Log                `mapstructure:"log"`
 	Integrations  IntegrationsConfig `mapstructure:"integrations"`
 	Storage       StorageConfig      `mapstructure:"storage"`
+	Worker        WorkerConfig       `mapstructure:"worker"`
 }
 
 // App holds general application settings.
@@ -144,6 +145,20 @@ type DOSpacesConfig struct {
 	Region          string `mapstructure:"region"` // e.g. "sgp1", "nyc3"
 	AccessKeyID     string `mapstructure:"-"`      // env: APP_STORAGE_PROVIDERS_DO_SPACES_ACCESS_KEY_ID
 	SecretAccessKey string `mapstructure:"-"`      // env: APP_STORAGE_PROVIDERS_DO_SPACES_SECRET_ACCESS_KEY
+}
+
+// WorkerConfig holds configuration for the asynq worker binary.
+type WorkerConfig struct {
+	Concurrency   int          `mapstructure:"concurrency"` // default: 10
+	Queues        WorkerQueues `mapstructure:"queues"`
+	RetentionDays int          `mapstructure:"retention_days"` // archived task retention, default: 7
+}
+
+// WorkerQueues maps logical domain names to their asynq queue names.
+type WorkerQueues struct {
+	User         string `mapstructure:"user"`         // default: "user"
+	Payment      string `mapstructure:"payment"`      // default: "payment"
+	Notification string `mapstructure:"notification"` // default: "notification"
 }
 
 // replacer maps APP_DB_HOST → db.host for Viper env binding.

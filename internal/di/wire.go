@@ -8,6 +8,7 @@ import (
 	"go-standard/internal/handler"
 	"go-standard/internal/infrastructure"
 	"go-standard/internal/pkg/jwt"
+	"go-standard/internal/worker"
 
 	elasticsearch "github.com/elastic/go-elasticsearch/v8"
 	govalidator "github.com/go-playground/validator/v10"
@@ -69,7 +70,19 @@ func InitializeApp(cfg *config.Config) (*App, func(), error) {
 		RepoSet,
 		UsecaseSet,
 		HandlerSet,
+		//EnqueuerSet,
 		wire.Struct(new(App), "*"),
+	)
+	return nil, nil, nil
+}
+
+// InitializeWorker builds the worker binary's dependency graph.
+// Shares InfraSet with the API binary — no duplication of infra wiring.
+func InitializeWorker(cfg *config.Config) (*worker.Server, func(), error) {
+	wire.Build(
+		InfraSet,
+		TaskHandlerSet,
+		WorkerSet,
 	)
 	return nil, nil, nil
 }

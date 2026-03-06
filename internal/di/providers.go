@@ -9,8 +9,13 @@ import (
 	"go-standard/internal/pkg/httpclient"
 	"go-standard/internal/pkg/jwt"
 	"go-standard/internal/pkg/storage"
+	"go-standard/internal/pkg/taskqueue"
 	"go-standard/internal/repository"
+	"go-standard/internal/task/email"
+	"go-standard/internal/task/notification"
+	"go-standard/internal/task/payment"
 	"go-standard/internal/usecase"
+	"go-standard/internal/worker"
 	"time"
 
 	elasticsearch "github.com/elastic/go-elasticsearch/v8"
@@ -197,3 +202,23 @@ var HandlerSet = wire.NewSet(ProvideUserHandler, ProvideAuthHandler)
 
 // StorageSet is the Wire provider set for object storage.
 var StorageSet = wire.NewSet(ProvideStorageManager)
+
+// TaskHandlerSet wires all domain task handlers.
+var TaskHandlerSet = wire.NewSet(
+	email.NewEmailHandler,
+	payment.NewPaymentHandler,
+	notification.NewNotificationHandler,
+)
+
+// WorkerSet wires the ServeMux and asynq Server.
+var WorkerSet = wire.NewSet(
+	worker.NewServeMux,
+	worker.NewServer,
+)
+
+// EnqueuerSet wires the Enqueuer for usecases in the API binary.
+// Also included in InitializeWorker so both binaries share the same InfraSet.
+var EnqueuerSet = wire.NewSet(
+	taskqueue.NewEnqueuer,
+	//wire.Bind(new(taskqueue.Enqueuer), new(*taskqueue.AsynqEnqueuer)),
+)
