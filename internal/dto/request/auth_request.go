@@ -8,11 +8,11 @@ import (
 
 // RegisterRequest is the payload for auth registration (same fields as CreateUserRequest).
 type RegisterRequest struct {
-	Email    string  `json:"email"    validate:"required,email"`
-	Password string  `json:"password" validate:"required,min=8,max=72"`
-	Name     string  `json:"name"     validate:"required,min=1,max=100"`
-	Phone    *string `json:"phone"    validate:"omitempty,indonesian_phone"`
-	Role     string  `json:"role"     validate:"required,oneof=admin user"`
+	Email    string  `json:"email"    validate:"required,email"                    example:"john.doe@example.com"`
+	Password string  `json:"password" validate:"required,min=8,max=72"             example:"P@ssw0rd123"`
+	Name     string  `json:"name"     validate:"required,min=1,max=100"            example:"John Doe"`
+	Phone    *string `json:"phone"    validate:"omitempty,indonesian_phone"        example:"+6281234567890"`
+	Role     string  `json:"role"     validate:"required,oneof=admin user"         example:"user"`
 }
 
 // ToModel maps the request DTO to a domain model.
@@ -30,11 +30,11 @@ func (r *RegisterRequest) ToModel(hashedPassword string) *model.User {
 
 // LoginRequest is the payload for authentication.
 type LoginRequest struct {
-	Email    string `json:"email"    validate:"required,email"`
-	Password string `json:"password" validate:"required"`
+	Email    string `json:"email"    validate:"required,email" example:"john.doe@example.com"`
+	Password string `json:"password" validate:"required"       example:"P@ssw0rd123"`
 }
 
 // RefreshRequest is the payload for token refresh.
 type RefreshRequest struct {
-	RefreshToken string `json:"refresh_token" validate:"required"`
+	RefreshToken string `json:"refresh_token" validate:"required" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."`
 }

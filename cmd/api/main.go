@@ -1,3 +1,14 @@
+// @title			go-standard API
+// @version			1.0
+// @description		REST API built with Fiber v2, GORM, Redis, and Elasticsearch.
+//
+// @host		localhost:3000
+// @BasePath	/api/v1
+//
+// @securityDefinitions.apikey	BearerAuth
+// @in							header
+// @name						Authorization
+// @description				Enter "Bearer {token}"
 package main
 
 import (

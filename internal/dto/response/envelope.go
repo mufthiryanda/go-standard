@@ -4,7 +4,7 @@ import "go-standard/internal/apperror"
 
 // Response is the standard API response envelope.
 type Response struct {
-	Success bool       `json:"success"`
+	Success bool       `json:"success" example:"true"`
 	Data    any        `json:"data"`
 	Error   *ErrorBody `json:"error"`
 	Meta    *Meta      `json:"meta"`
@@ -12,17 +12,17 @@ type Response struct {
 
 // ErrorBody carries error code, human message, and optional field details.
 type ErrorBody struct {
-	Code    string                `json:"code"`
-	Message string                `json:"message"`
+	Code    string                `json:"code"    example:"BAD_REQUEST"`
+	Message string                `json:"message" example:"validation failed"`
 	Details []apperror.FieldError `json:"details,omitempty"`
 }
 
 // Meta carries pagination information.
 type Meta struct {
-	Page       int   `json:"page"`
-	PageSize   int   `json:"page_size"`
-	TotalItems int64 `json:"total_items"`
-	TotalPages int   `json:"total_pages"`
+	Page       int   `json:"page"        example:"1"`
+	PageSize   int   `json:"page_size"   example:"20"`
+	TotalItems int64 `json:"total_items" example:"150"`
+	TotalPages int   `json:"total_pages" example:"8"`
 }
 
 // Success returns a successful envelope with data.
