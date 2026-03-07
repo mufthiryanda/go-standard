@@ -234,6 +234,7 @@ tramp
 
 # Storage directories
 storage/
+!internal/pkg/storage/
 uploads/
 media/
 assets/
